@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Atualizar pacotes e instalar dependências
+sudo apt update && sudo apt upgrade -y
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+
+# Instalar OpenSSH Server para acesso remoto via SSH
+sudo apt install openssh-server -y
+
+# Verificar se o serviço SSH está em execução e habilitá-lo
+sudo systemctl enable --now ssh
+sudo systemctl status ssh
+
+# Habilitar login do root via SSH
+echo "PermitRootLogin yes" | sudo tee -a /etc/ssh/sshd_config > /dev/null
+
+# Reiniciar o serviço SSH para aplicar as mudanças
+sudo systemctl restart ssh
+
+# Instalar Docker e Docker Compose
+sudo apt install docker-ce docker-ce-cli containerd.io -y
+
+# Verificar a versão do Docker
+sudo docker --version
+
+# Habilitar e iniciar o serviço Docker
+sudo systemctl enable --now docker
+sudo systemctl status docker
+
+# Baixar e configurar Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.21.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Verificar a versão do Docker Compose
+docker-compose --version
+
+# Criar diretório para DuckDNS
+mkdir -p ~/duckdns
+cd ~/duckdns
+
+# Solicitar o token e subdomínio do DuckDNS
+echo "Digite o token do DuckDNS:"
+read token
+echo "Digite o subdomínio do DuckDNS (sem .duckdns.org):"
+read subdomain
+
+# Criar o arquivo docker-compose.yml para o DuckDNS
+cat <<EOF > docker-compose.yml
+version: '3'
+services:
+  duckdns:
+    image: linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - SUBDOMAINS=$subdomain  # Substituir pelo seu subdomínio DuckDNS
+      - TOKEN=$token  # Substituir pelo seu token DuckDNS
+    volumes:
+      - ./config:/config  # Armazenar as configurações
+    restart: unless-stopped  # Reiniciar automaticamente se o contêiner parar
+EOF
+
+# Iniciar o DuckDNS com Docker Compose
+sudo docker-compose up -d
+
+# Exibir logs do contêiner para verificar se está funcionando corretamente
+echo "Verificando logs do DuckDNS..."
+sudo docker-compose logs -f
+
+# Mensagem final
+echo "DuckDNS configurado! O contêiner DuckDNS está sendo executado em segundo plano."
