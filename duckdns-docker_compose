@@ -4,6 +4,13 @@
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y git curl apt-transport-https ca-certificates software-properties-common
 
+# Adicionar repositório oficial do Docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Atualizar pacotes novamente após adicionar o repositório Docker
+sudo apt update
+
 # Instalar Docker
 sudo apt install -y docker-ce docker-ce-cli containerd.io
 
@@ -40,4 +47,5 @@ sudo docker-compose up -d
 # Exibir logs do Docker Compose
 sudo docker-compose logs -f
 
+# Mensagem final
 echo "DuckDNS configurado e contêiner em execução!"
