@@ -31,6 +31,22 @@ git clone https://github.com/shazaltman/duckdns.git
 # Navegar até o diretório clonado
 cd duckdns
 
+# Criar o arquivo docker-compose.yml
+cat <<EOF > docker-compose.yml
+version: '3'
+services:
+  duckdns:
+    image: linuxserver/duckdns
+    container_name: duckdns
+    environment:
+      - TZ=America/Sao_Paulo
+      - SUBDOMAINS=$subdomain
+      - TOKEN=$token
+    volumes:
+      - ./data:/config
+    restart: unless-stopped
+EOF
+
 # Solicitar o token e subdomínio do DuckDNS
 echo "Digite o token do DuckDNS:"
 read token
